@@ -1,0 +1,168 @@
+// Prisma schema for Deep Finance Research Chatbot
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // bcrypt hashed
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sessions Session[]
+  threads  Thread[]
+  messages Message[]
+  memories Memory[]
+
+  @@index([email])
+}
+
+// Session model for JWT session management
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  token        String   @unique
+  refreshToken String?  @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+// Thread model for chat conversations
+model Thread {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String   @default("New Research")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+  sources  Source[]
+  reports  Report[]
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Message model for chat messages (supports 100+ messages per thread)
+model Message {
+  id        String      @id @default(uuid())
+  threadId  String
+  userId    String
+  role      MessageRole
+  content   String      @db.Text
+  metadata  Json?       // For storing thinking trace, tokens, etc.
+  createdAt DateTime    @default(now())
+
+  // Relations
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([threadId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+  THINKING
+}
+
+// Source model for research citations
+model Source {
+  id          String   @id @default(uuid())
+  threadId    String
+  url         String
+  title       String?
+  snippet     String?  @db.Text
+  content     String?  @db.Text
+  publishedAt DateTime?
+  accessedAt  DateTime @default(now())
+  metadata    Json?    // For storing domain, author, etc.
+
+  // Relations
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId])
+  @@index([url])
+}
+
+// Report model for generated research reports
+model Report {
+  id         String       @id @default(uuid())
+  threadId   String
+  title      String
+  content    String       @db.Text
+  format     ReportFormat @default(MARKDOWN)
+  citations  Json         // Array of source IDs and inline citation markers
+  metadata   Json?
+  createdAt  DateTime     @default(now())
+
+  // Relations
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId])
+}
+
+enum ReportFormat {
+  MARKDOWN
+  HTML
+  JSON
+}
+
+// Memory model for long-term episodic/semantic memory
+model Memory {
+  id         String     @id @default(uuid())
+  userId     String
+  type       MemoryType
+  content    String     @db.Text
+  embedding  String?    // JSON array of floats for vector search
+  metadata   Json?      // For storing thread_id, sources, importance score, etc.
+  createdAt  DateTime   @default(now())
+  accessedAt DateTime   @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+enum MemoryType {
+  EPISODIC  // Specific interactions/events
+  SEMANTIC  // General knowledge/facts
+  PROCEDURAL // How-to knowledge
+}
+
+// Checkpoint model for LangGraph state persistence (short-term memory)
+model Checkpoint {
+  id        String   @id @default(uuid())
+  threadId  String
+  namespace String   // User ID for isolation
+  state     Json     // Serialized graph state
+  createdAt DateTime @default(now())
+
+  @@unique([threadId, namespace])
+  @@index([threadId])
+}
