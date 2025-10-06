@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Param, UseGuards, Res } from "@nestjs/common"
-import type { Response } from "express"
-import type { ReportsService } from "./reports.service"
+import { Response } from "express"
+import { ReportsService } from "./reports.service"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
 import { ReportFormat } from "@prisma/client"
 

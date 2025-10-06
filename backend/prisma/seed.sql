@@ -1,13 +1,10 @@
--- Seed script for initial data (optional)
--- Run with: psql $DATABASE_URL -f prisma/seed.sql
 
--- Create a demo user (password: demo123)
 INSERT INTO "User" (id, email, password, name, "createdAt", "updatedAt")
 VALUES (
-  'demo-user-id',
-  'demo@example.com',
-  '$2b$10$YourHashedPasswordHere',
-  'Demo User',
+  'sejal-demo-id',
+  'sejalbhawsar21@gmail.com',
+  '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZ1dVQ9z.fQmYp0xM9CZK1oQkXQXq',
+  'Sejal Bhawsar',
   NOW(),
   NOW()
 ) ON CONFLICT (email) DO NOTHING;

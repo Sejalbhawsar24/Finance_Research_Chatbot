@@ -1,6 +1,6 @@
 import { PrismaService } from "@/prisma/prisma.service";
 import { Injectable } from "@nestjs/common"
-import type { MessageRole } from "@prisma/client"
+import { MessageRole } from "@prisma/client"
 
 @Injectable()
 export class MessagesService {

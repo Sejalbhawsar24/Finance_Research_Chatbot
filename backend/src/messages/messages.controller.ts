@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common"
-import type { MessagesService } from "./messages.service"
+import { MessagesService } from "./messages.service"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
-import type { MessageRole } from "@prisma/client"
+import { MessageRole } from "@prisma/client"
 
 @Controller("messages")
 @UseGuards(JwtAuthGuard)

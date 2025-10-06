@@ -5,10 +5,10 @@ import {
   type OnGatewayConnection,
   type OnGatewayDisconnect,
 } from "@nestjs/websockets"
-import type { Server, Socket } from "socket.io"
-import type { ResearchService } from "./research.service"
-import type { MessagesService } from "../messages/messages.service"
-import type { SourcesService } from "../sources/sources.service"
+import { Server, Socket } from "socket.io"
+import { ResearchService } from "./research.service"
+import { MessagesService } from "../messages/messages.service"
+import { SourcesService } from "../sources/sources.service"
 import { MessageRole } from "@prisma/client"
 
 @WebSocketGateway({

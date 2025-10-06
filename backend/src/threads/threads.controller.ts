@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Request} from "@nestjs/common"
-import type { ThreadsService } from "./threads.service"
+import { ThreadsService } from "./threads.service"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
 
 @Controller("threads")
